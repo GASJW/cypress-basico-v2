@@ -1,6 +1,7 @@
 /// <reference types="Cypress" />
 
 describe("Central de Atendimento ao Cliente TAT", function () {
+  const THREE_SECONDS_IN_MS = 3000;
   this.beforeEach(function () {
     cy.visit("./src/index.html");
   });
@@ -9,6 +10,9 @@ describe("Central de Atendimento ao Cliente TAT", function () {
   });
   it("preenche os campos obrigatórios e envia o formulário", function () {
     const longText = "Teste, teste, teste, teste, teste, teste, teste";
+
+    cy.clock();
+
     cy.get("#firstName").type("Guilherme");
     cy.get("#lastName").type("Silva");
     cy.get("#email").type("guiiguto@exemplo.com");
@@ -16,8 +20,14 @@ describe("Central de Atendimento ao Cliente TAT", function () {
     cy.contains("button", "Enviar").click();
 
     cy.get(".success").should("be.visible");
+
+    cy.tick(THREE_SECONDS_IN_MS);
+
+    cy.get(".success").should("not.be.visible");
   });
-  it("exibe mensagem de erro com email em formatação inválida", function () {
+
+  it.only("exibe mensagem de erro com email em formatação inválida", function () {
+    cy.clock();
     cy.get("#firstName").type("Guilherme");
     cy.get("#lastName").type("Silva");
     cy.get("#email").type("guiigutoex#emplo,com");
@@ -25,6 +35,10 @@ describe("Central de Atendimento ao Cliente TAT", function () {
     cy.contains("button", "Enviar").click();
 
     cy.get(".error").should("be.visible");
+
+    cy.tick(THREE_SECONDS_IN_MS);
+
+    cy.get(".error").should("not.be.visible");
   });
   it("campo telefone continua vazio quando preenchido com valor não-numérico", function () {
     cy.get("#phone").type("abcdefghij").should("have.value", "");
